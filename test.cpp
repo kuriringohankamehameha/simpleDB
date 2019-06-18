@@ -444,6 +444,47 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
 	{
 		statement->type = STATEMENT_SELECT;
 
+		vector<string> tokens;
+
+		if(input_buffer->buffer.length() == 6)
+		{
+			return PREPARE_SUCCESS;
+		}
+
+		input_buffer->buffer.push_back(' ');
+
+		stringstream check(input_buffer->buffer);
+
+		string intermediate;
+
+		int args = 0;
+
+		while (my_getline(check, intermediate, ' '))
+		{
+			if (args > 0)
+				tokens.push_back(intermediate);
+			args++;
+		}
+
+		if (!(args == 1 || args == 3))
+		{
+			return PREPARE_SYNTAX_ERROR;
+		}
+
+		if (args == 3 && tokens[0].compare(0, 5, "until") != 0)
+		{
+			return PREPARE_SELECT_FAILURE;
+		}
+
+		if (args == 3)
+		{
+			statement->row_to_insert.id = my_ascii_to_integer(tokens[1]);
+			if (statement->row_to_insert.id == UINT_MAX)
+				return PREPARE_NEGAGIVE_ID;
+			select_until_id = statement->row_to_insert.id;
+		}
+
+
 		return PREPARE_SUCCESS;
 	}
 
@@ -1730,13 +1771,33 @@ ExecuteResult execute_select(Statement* statement, Table* table)
 
 	//We now use Cursors for select by moving row wise
 	class Cursor* cursor = table_start(table);
-	while (!(cursor->getEOT()))
+	if (select_until_id == 0)
 	{
-		//Bring data of row from memory
-		deserialize_row(cursor_value(cursor), &row);
-		print_row(&row);
-		cursor_advance(cursor);
+		while (!(cursor->getEOT()))
+		{
+			//Bring data of row from memory
+			deserialize_row(cursor_value(cursor), &row);
+			print_row(&row);
+			cursor_advance(cursor);
+		}
 	}
+
+	else
+	{
+		while(!(cursor->getEOT()))
+		{
+			deserialize_row(cursor_value(cursor), &row);
+			if(row.id > select_until_id)
+			{
+				break;
+			}
+			print_row(&row);
+			cursor_advance(cursor);
+		}
+
+		select_until_id = 0;
+	}
+	
 
 	//Free the cursor
 	delete cursor;
@@ -2023,6 +2084,26 @@ int main(int argc, char* argv[])
 			potential_attacker = true;
 			current_time = time(0);
             continue;
+		
+		case (PREPARE_NEGATIVE_AGE):
+			cout << "Age must be a non-zero positive integer.\n";
+			continue;
+		
+		case (PREPARE_ADDRESS_OVERFLOW):
+			cout << "Error: Address is too long.\n";
+			continue;
+		
+		case (PREPARE_NEGATIVE_WEIGHT):
+			cout << "Weight must be a non-zero positive integer.\n";
+			continue;
+		
+		case (PREPARE_BLOOD_GROUP_OVERFLOW):
+			cout << "Blood Group is too long.\n";
+			continue;
+		
+		case (PREPARE_SELECT_FAILURE):
+			cout << "Incorrect Syntax for \"select\" statement. Must be \"select until maxKeyID\".\n";
+			continue;
 
 		case (PREPARE_EMPTY):
 			continue;
