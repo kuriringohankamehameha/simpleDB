@@ -1191,7 +1191,7 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer, Table* table)
 
 	else if (input_buffer->buffer.compare(".count") == 0)
 	{
-		cout << "Number of records in the table : " << table->pager->file_length / ROW_SIZE << endl;
+		cout << "Number of records in the table : " << get_count(table) << endl;
 		return META_COMMAND_SUCCESS;
 	}
 
@@ -1965,32 +1965,28 @@ void print_tree(Pager* pager, uint32_t page_num, uint32_t indentation_level)
   }
 }
 
-
-uint32_t get_count(Pager* pager, uint32_t page_num)
+uint32_t get_count(Table* table)
 {
-  	uint32_t count = 0;
-	void* node = get_page(pager, page_num);
-	uint32_t num_keys, child;
+	//Executes a select statement by r/w onto the table
+	//Implementing basic select operation
+	uint32_t count = 0;
+	Row row;
 
-	switch (get_node_type(node))
+	//We now use Cursors for select by moving row wise
+	class Cursor* cursor = table_start(table);
+	if (select_until_id == 0)
 	{
-		case (NODE_LEAF):
-		num_keys = *leaf_node_num_cells(node);
-		count += num_keys;
-		break;
-
-		case (NODE_INTERNAL):
-		num_keys = *internal_node_num_keys(node);
-		for (uint32_t i = 0; i < num_keys; i++) 
+		while (!(cursor->getEOT()))
 		{
-			child = *internal_node_child(node, i);
-			count += get_count(pager, child);
+			//Bring data of row from memory
+			count++;
+			cursor_advance(cursor);
 		}
+	}
 
-		child = *internal_node_right_child(node);
-		count += get_count(pager, child);
-		break;
-  }
+	delete cursor;
+
+	return count;
 }
 
 void set_root(bool cond)

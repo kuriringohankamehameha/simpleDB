@@ -400,6 +400,7 @@ void split_leaf_and_insert(class Cursor* cursor, uint32_t key, Row* value);
 void split_internal_node(Table* table, void* node, uint32_t node_page_num);
 void indent(uint32_t level);
 bool check_key(Pager* pager, uint32_t page_num, uint32_t key);
+uint32_t get_count(Table* table);
 void print_leaf_node(void* node);
 void print_tree(Pager* pager, uint32_t page_num, uint32_t indentation_level);
 void print_constants();
