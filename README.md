@@ -9,13 +9,13 @@ chmod +x generate_tests.py
 
 ## For running the C++ file directly:
 
-# Using Makefile:
+### Using Makefile:
 
 ```
 make
 ```
 
-# Alternatively, use
+### Alternatively, use
 
 ```
 ./test test_records.txt
