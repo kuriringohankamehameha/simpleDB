@@ -135,7 +135,7 @@ if __name__ == '__main__':
 			select_until_statement(limit)
 			print('\n')
 		elif choice == 3:
-			record = input('Enter a record to insert (Format: \"ID UserName EmailID\" ) :\n')
+			record = input('Enter a record to insert (Format: \"ID UserName EmailID Address Age Weight Blood_Group\" ) :\n')
 			insert_particular_record(record)
 			print('\n')
 		elif choice == 4:
