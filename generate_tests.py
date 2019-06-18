@@ -95,6 +95,9 @@ def start_program(num_records):
 def select_statement():
 	p = run(['./test', 'test_records.txt'], input='select\n.exit', encoding='ascii')
 
+def select_until_statement(limit):
+	p = run(['./test', 'test_records.txt'], input='select until ' + str(limit) + '\n.exit', encoding='ascii')
+
 def insert_particular_record(record):
 	p = run(['./test', 'test_records.txt'], input='insert ' + record + '\n' + '.exit', encoding='ascii')
 
@@ -114,12 +117,13 @@ if __name__ == '__main__':
 
 	while(True):
 		print('1 : Select records from the database')
-		print('2 : Insert a particular record into the database')
-		print('3 : Insert random records into the database')
-		print('4 : Delete a particular record from the database')
-		print('5 : Delete a bunch of records from a specified file, from the database')
-		print('6 : Get the number of records currently in the database')
-		print('7 : Exit the Program')
+		print('2 : Select records having IDs < max_ID from the database')
+		print('3 : Insert a particular record into the database')
+		print('4 : Insert random records into the database')
+		print('5 : Delete a particular record from the database')
+		print('6 : Delete a bunch of records from a specified file, from the database')
+		print('7 : Get the number of records currently in the database')
+		print('8 : Exit the Program')
 		print('\n')
 		choice = int(input('Please select an option :\n'))
 
@@ -127,26 +131,30 @@ if __name__ == '__main__':
 			select_statement()
 			print('\n')
 		elif choice == 2:
+			limit = int(input('Enter the max_ID upto which records will be selected :\n'))
+			select_until_statement(limit)
+			print('\n')
+		elif choice == 3:
 			record = input('Enter a record to insert (Format: \"ID UserName EmailID\" ) :\n')
 			insert_particular_record(record)
 			print('\n')
-		elif choice == 3:
+		elif choice == 4:
 			number = int(input('Enter number of records to be inserted (<1000) :\n'))
 			if(number > 1000):
 				raise ValueError("Number of records must be less than 1000")
 			insert_records(number, 10000)
 			print('\n')
-		elif choice == 4:
+		elif choice == 5:
 			key_num = int(input('Enter ID of the record to be deleted\n'))
 			delete_particular_record(str(key_num))
 			print('\n')
-		elif choice == 5:
+		elif choice == 6:
 			number = int(input('Enter number of records to be inserted (<1000) :\n'))
 			if(number > 1000):
 				raise ValueError("Number of records must be less than 1000")
 			create_list_to_delete('test_records.txt', number, delete_from_first = True)
 			print('\n')
-		elif choice == 6:
+		elif choice == 7:
 			record_count()
 		else:
 			break
