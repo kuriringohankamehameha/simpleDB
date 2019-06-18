@@ -40,7 +40,11 @@ typedef short ssize_t;      /* is this even possible? */
 #endif
 
 #define COLUMN_USERNAME_SIZE 32
-#define COLUMN_EMAIL_SIZE 255
+#define COLUMN_EMAIL_SIZE 100
+#define COLUMN_ADDRESS_SIZE 255
+#define COLUMN_AGE_SIZE 6
+#define COLUMN_WEIGHT_SIZE 6
+#define COLUMN_BLOOD_GROUP_SIZE 6
 
 //Trick for getting the address of the Attribute. sizeof(((Struct*)0)->Attribute) gives size of the attribute
 #define size_of_attribute(Struct, Attribute) sizeof(((Struct*)0)->Attribute)
@@ -67,7 +71,7 @@ B-Tree Implementation :
 
 //Enumerations
 enum MetaCommandResult_t { META_COMMAND_SUCCESS, META_COMMAND_UNRECOGNIZED, META_COMMAND_PASSWORD_FAILURE, META_COMMAND_EMPTY };
-enum PrepareResult_t { PREPARE_SUCCESS, PREPARE_UNRECOGNIZED_STATEMENT, PREPARE_SYNTAX_ERROR, PREPARE_USERNAME_OVERFLOW, PREPARE_EMAIL_OVERFLOW, PREPARE_NEGAGIVE_ID, PREPARE_EMPTY, PREPARE_PASSWORD_SUCCESS, PREPARE_PASSWORD_FAILURE };
+enum PrepareResult_t { PREPARE_SUCCESS, PREPARE_UNRECOGNIZED_STATEMENT, PREPARE_SYNTAX_ERROR, PREPARE_USERNAME_OVERFLOW, PREPARE_EMAIL_OVERFLOW, PREPARE_NEGAGIVE_ID, PREPARE_EMPTY, PREPARE_PASSWORD_SUCCESS, PREPARE_PASSWORD_FAILURE, PREPARE_ADDRESS_OVERFLOW, PREPARE_NEGATIVE_AGE, PREPARE_NEGATIVE_WEIGHT, PREPARE_BLOOD_GROUP_OVERFLOW };
 enum StatementType_t { STATEMENT_INSERT, STATEMENT_SELECT, STATEMENT_DELETE, STATEMENT_EMPTY };
 enum ExecuteResult_t { EXECUTE_SUCCESS, EXECUTE_DUPLICATE_KEY, EXECUTE_TABLE_FULL };
 enum NodeType_t { NODE_INTERNAL, NODE_LEAF };
@@ -90,6 +94,10 @@ struct Row_t
 	//Allocating extra space due to null terminated C string
 	char username[COLUMN_USERNAME_SIZE + 1];
 	char email[COLUMN_EMAIL_SIZE + 1];
+	char address[COLUMN_ADDRESS_SIZE + 1];
+	uint32_t age;
+	uint32_t weight;
+	char blood_group[COLUMN_BLOOD_GROUP_SIZE + 1];
 };
 
 struct Statement_t
@@ -136,13 +144,22 @@ typedef enum NodeType_t NodeType;
 const uint32_t ID_SIZE = size_of_attribute(Row, id);
 const uint32_t USERNAME_SIZE = size_of_attribute(Row, username);
 const uint32_t EMAIL_SIZE = size_of_attribute(Row, email);
+const uint32_t ADDRESS_SIZE = size_of_attribute(Row, address);
+const uint32_t AGE_SIZE = size_of_attribute(Row, age);
+const uint32_t WEIGHT_SIZE = size_of_attribute(Row, weight);
+const uint32_t BLOOD_GROUP_SIZE = size_of_attribute(Row, blood_group);
+
 
 //Create Offsets for accessing via pages
 const uint32_t ID_OFFSET = 0;
 const uint32_t USERNAME_OFFSET = ID_OFFSET + ID_SIZE;
 const uint32_t EMAIL_OFFSET = USERNAME_OFFSET + USERNAME_SIZE;
+const uint32_t ADDRESS_OFFSET = EMAIL_OFFSET + EMAIL_SIZE;
+const uint32_t AGE_OFFSET = ADDRESS_OFFSET + ADDRESS_SIZE;
+const uint32_t WEIGHT_OFFSET = AGE_OFFSET + AGE_SIZE;
+const uint32_t BLOOD_GROUP_OFFSET = WEIGHT_OFFSET + WEIGHT_SIZE;
 
-const uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
+const uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE + ADDRESS_SIZE + AGE_SIZE + WEIGHT_SIZE + BLOOD_GROUP_SIZE;
 
 //Ensure Page Size is 4KB as this is the default size for most Computers
 const uint32_t PAGE_SIZE = 4096;

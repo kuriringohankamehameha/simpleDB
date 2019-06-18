@@ -31,7 +31,8 @@ def insert_statement(num_records, max_num):
 	list = []
 	for i in range(num_records):
 		j = random.randint(0 , max_num)
-		list.append('insert {} user{} person{}@example.com\n'.format(j, j, j))
+		k = random.choice(['A+','B+','O+','O-', 'AB+', 'AB-', 'A-', 'B-'])
+		list.append('insert {} user{} person{}@example.com address{} {} {} {}\n'.format(j, j, j, j, j, j, k))
 
 	return list
 
@@ -40,7 +41,7 @@ def insert_records(num_records, max_num):
 	string = ""
 	for i in list_insert:
 		string = string + i
-	p = run(['./test', 'records.txt'], input=string+'.exit', encoding='ascii')
+	p = run(['./test', 'test_records.txt'], input=string+'.exit', encoding='ascii')
 
 
 def create_list_to_delete(filename, num_to_delete, delete_from_first = True):
@@ -73,7 +74,7 @@ def create_list_to_delete(filename, num_to_delete, delete_from_first = True):
 	for i in list_to_delete:
 		#print('delete',i)
 		string = string + 'delete ' + i + '\n'
-	p = run(['./test', 'records.txt'], input = string + '.exit', encoding='ascii')
+	p = run(['./test', 'test_records.txt'], input = string + '.exit', encoding='ascii')
 
 
 def start_program(num_records):
@@ -88,20 +89,20 @@ def start_program(num_records):
 		string = string + i
 	string = string + 'select\n'
 	string = string + '.exit'
-	p = run(['./test', 'records.txt'], input=string, encoding='ascii')
+	p = run(['./test', 'test_records.txt'], input=string, encoding='ascii')
 
 
 def select_statement():
-	p = run(['./test', 'records.txt'], input='select\n.exit', encoding='ascii')
+	p = run(['./test', 'test_records.txt'], input='select\n.exit', encoding='ascii')
 
 def insert_particular_record(record):
-	p = run(['./test', 'records.txt'], input='insert ' + record + '\n' + '.exit', encoding='ascii')
+	p = run(['./test', 'test_records.txt'], input='insert ' + record + '\n' + '.exit', encoding='ascii')
 
 def delete_particular_record(key_num):
-	p = run(['./test', 'records.txt'], input='delete ' + key_num + '\n.exit', encoding='ascii')
+	p = run(['./test', 'test_records.txt'], input='delete ' + key_num + '\n.exit', encoding='ascii')
 
 def record_count():
-	p = run(['./test', 'records.txt'], input='.count\n' + '.exit', encoding='ascii')
+	p = run(['./test', 'test_records.txt'], input='.count\n' + '.exit', encoding='ascii')
 
 
 
@@ -143,7 +144,7 @@ if __name__ == '__main__':
 			number = int(input('Enter number of records to be inserted (<1000) :\n'))
 			if(number > 1000):
 				raise ValueError("Number of records must be less than 1000")
-			create_list_to_delete('records.txt', number, delete_from_first = True)
+			create_list_to_delete('test_records.txt', number, delete_from_first = True)
 			print('\n')
 		elif choice == 6:
 			record_count()

@@ -378,9 +378,9 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
 			args++;
 		}
 
-		if (args != 4)
+		if (args != 8)
 		{
-			cout << "You have supplied " << args << " arguments. Please supply 4 arguments." << endl;
+			cout << "You have supplied " << args << " arguments. Please supply 8 arguments. (Format : \"insert keyID username email address age weight blood_group\")" << endl;
 
 			return PREPARE_SYNTAX_ERROR;
 		}
@@ -407,6 +407,35 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
 		{
 			return PREPARE_EMAIL_OVERFLOW;
 		}
+
+		strcpy(statement->row_to_insert.address, tokens[3].c_str());
+
+		if(strlen(statement->row_to_insert.email) > COLUMN_ADDRESS_SIZE)
+		{
+			return PREPARE_ADDRESS_OVERFLOW;
+		}
+
+		statement->row_to_insert.age = my_ascii_to_integer(tokens[4]);
+
+		if (statement->row_to_insert.age == UINT_MAX)
+		{
+			return PREPARE_NEGATIVE_AGE;
+		}
+
+		statement->row_to_insert.weight = my_ascii_to_integer(tokens[5]);
+
+		if (statement->row_to_insert.weight == UINT_MAX)
+		{
+			return PREPARE_NEGATIVE_WEIGHT;
+		}
+		
+		strcpy(statement->row_to_insert.blood_group, tokens[6].c_str());
+
+		if(strlen(statement->row_to_insert.blood_group) > COLUMN_BLOOD_GROUP_SIZE)
+		{
+			return PREPARE_BLOOD_GROUP_OVERFLOW;
+		}
+
 
 		return PREPARE_SUCCESS;
 	}
@@ -490,6 +519,19 @@ void serialize_row(Row* source, void* destination)
 	//Copy Row Email
 	memcpy(static_cast<char*>(destination) + EMAIL_OFFSET, &(source->email), EMAIL_SIZE);
 
+	//Copy Address
+	memcpy(static_cast<char*>(destination) + ADDRESS_OFFSET, &(source->address), ADDRESS_SIZE);
+
+	//Copy Age
+	memcpy(static_cast<char*>(destination) + AGE_OFFSET, &(source->age), AGE_SIZE);
+
+	//Copy Weight
+	memcpy(static_cast<char*>(destination) + WEIGHT_OFFSET, &(source->weight), WEIGHT_SIZE);
+
+	//Copy Blood Group
+	memcpy(static_cast<char*>(destination) + BLOOD_GROUP_OFFSET, &(source->blood_group), BLOOD_GROUP_SIZE);
+
+
 	//NOTE: Since void ptr arithmetic isn't allowed, convert it to char* before jumping by OFFSET amount of locations
 
 	return;
@@ -502,6 +544,10 @@ void deserialize_row(void* source, Row* destination)
 	memcpy(&(destination->id), (static_cast<char*>(source) + ID_OFFSET), ID_SIZE);
 	memcpy(&(destination->username), (static_cast<char*>(source) + USERNAME_OFFSET), USERNAME_SIZE);
 	memcpy(&(destination->email), (static_cast<char*>(source) + EMAIL_OFFSET), EMAIL_SIZE);
+	memcpy(&(destination->address), (static_cast<char*>(source) + ADDRESS_OFFSET), ADDRESS_SIZE);
+	memcpy(&(destination->age), (static_cast<char*>(source) + AGE_OFFSET), AGE_SIZE);
+	memcpy(&(destination->weight), (static_cast<char*>(source) + WEIGHT_OFFSET), WEIGHT_SIZE);
+	memcpy(&(destination->blood_group), (static_cast<char*>(source) + BLOOD_GROUP_OFFSET), BLOOD_GROUP_SIZE);
 
 	return;
 }
@@ -554,7 +600,7 @@ void* get_page(Pager* pager, uint32_t page_num)
 void print_row(Row* row)
 {
 	//Prints the row
-	cout << "(" << row->id << ", " << row->username << ", " << row->email << ")" << endl;
+	cout << "(" << row->id << ", " << row->username << ", " << row->email << ", " << row->address << ", " << row->age << ", " << row->weight << ", " << row->blood_group << ")" << endl;
 
 	return;
 }
