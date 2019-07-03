@@ -3,8 +3,8 @@
 ## Run the test script using:
 
 ```
-chmod +x generate.py    
-./generate.py 
+chmod +x generate_tests.py    
+./generate_tests.py 
 ```
 
 ## For running the C++ file directly:
